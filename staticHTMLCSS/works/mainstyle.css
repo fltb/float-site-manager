@@ -1,6 +1,6 @@
 /* Layout begin::*/
 .site-nav {
-    flex-grow: 1;
+    /*flex-grow: 1;*/
     display: flex;
     margin-left: auto;
     margin-right: auto;
@@ -50,7 +50,7 @@
     min-height: calc(100vh - 10.5em);
     overflow: auto;
     border-radius: 0.8em;
-    padding: 2em;
+    padding: 1em;
 }
 
 .footer {
@@ -68,6 +68,24 @@
     .main {
         width: 100%;
     }
+}
+@media (max-width: 500px) {
+    .site-title {
+        display: none;
+    }
+    .main-menu {
+        margin-left: 0;
+    }
+    .site-nav {
+        padding: 0.5em 0 0.5em 0;
+        margin: 0;
+        border-radius: 0.8em;
+        position: static;
+        width: 100%;
+    }
+    .main-container {
+        margin-top: 0.5em;
+    }    
 }
 /* Layout end::*/
 
