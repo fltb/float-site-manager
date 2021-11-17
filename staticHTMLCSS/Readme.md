@@ -28,6 +28,7 @@
 
 包含很多关于当前页面信息的 json，包括了：
 
+- type
 - name
 - auther
 - categorie
@@ -39,7 +40,7 @@
 
 ## 部署流程
 
-遍历 src 文件夹的所有文件，对于每个 page 生成对应子目录下的 HTML。
+遍历 source 文件夹的所有文件，对于每个 page 生成对应子目录下的 HTML。
 
 按照每个 page 或者 site 的 infos.json 对它属于的归档页面和标签页面进行生成。
 
