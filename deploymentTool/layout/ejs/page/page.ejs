@@ -1,0 +1,11 @@
+<%- include('../common/head.ejs', {page: page}); %>
+
+<body>
+    <%- include('../common/nav.ejs', {config: config}); %>
+
+    <div class="main-container">
+        <%- page.content %>
+    </div>
+
+    <%- include('../common/head.ejs', {config: config}); %>
+</body>

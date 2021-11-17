@@ -1,0 +1,34 @@
+<%- include('../common/head.ejs', {page: page}); %>
+
+<body>
+    <%- include('../common/nav.ejs', {config: config}); %>
+
+    <div class="main-container">
+        <h1><%= tag.name %></h1>
+        <div class="content-area">
+            <ul class="categories-tab-contents">
+                <li class="categories-tab-content">
+                    <ul class="displayed-contents">
+                        <%= for (let i = 0; i < tag.items.length; i++) {
+                            let now = tag.items[i];
+                        %>
+                        <li class="displayed-content">
+                            <a href="<%= now.link %>">
+                                <h2 class="content-title"><%= now.title %></h2>
+                                <p class="content-description"><%= now.description %></p>
+                                <div class="content-infos">
+                                    <span class="content-categorie"><%= now.category %></span>
+                                    <span class="content-auther"><%= now.auther %></span>
+                                    <span class="content-date push"><%= now.date %></span>
+                                </div>
+                            </a>
+                        </li>
+                        <% } %>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <%- include('../common/head.ejs', {config: config}); %>
+</body>

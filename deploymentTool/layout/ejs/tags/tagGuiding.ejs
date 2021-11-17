@@ -1,0 +1,21 @@
+<%- include('../common/head.ejs', {page: page}); %>
+
+<body>
+    <%- include('../common/nav.ejs', {config: config}); %>
+
+    <div class="main-container">
+        <h1>标签</h1>
+        
+        <div class="guiding-area">
+            <ul class="tags-tab-links">
+                <%= for (let i = 0; i < tagGuiding.items.length; i++) {
+                    let now = tagGuiding.items[i];
+                %>
+                <li><a href="<%= now.link %>" class="tags-tab-link"><%= now.name %></a></li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+
+    <%- include('../common/head.ejs', {config: config}); %>
+</body>

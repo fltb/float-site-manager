@@ -1,0 +1,12 @@
+    <nav class="site-nav">
+        <div class="site-meta shake-slow">
+           <a href="/" class="brand" rel="start">
+                <span class="site-title"><%= config.siteName %></span>
+           </a>
+       </div>
+       <ul class="main-menu">
+           <% for (let i = 0; i < config.navs.length; i++) { %>
+           <li><a href="<%= config.navs[i].link %>" class="shake-little"><%= config.navs[i].name %></a></li>
+           <% } %>
+       </ul>
+   </nav>
