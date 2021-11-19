@@ -14,6 +14,7 @@ let config = {
     siteName: "",
     owner: '',
     lisenseName: '',
+    lisense: ',
     navs: [ {
             name: '',
             link: '/'
