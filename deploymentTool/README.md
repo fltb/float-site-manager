@@ -36,13 +36,8 @@ let page = {
 
 ``` js
 let category = {
-    categories: [{
-        name: '',
-        active: true
-    }, {
-        name: '',
-        active: false
-    }],
+    categories: ['', ...],
+    active: '',
     items: [{
         link: '/',
         title: '',
