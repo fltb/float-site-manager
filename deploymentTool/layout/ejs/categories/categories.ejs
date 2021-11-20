@@ -7,12 +7,12 @@
         <div class="guiding-area">
             <ul class="categories-tab-links">
                 <% for (let i = 0; i < category.categories.length; i++) { 
-                    let now = category.categories[i];
+                    let name = category.categories[i];
                 %>
                     <li>
-                        <a href="/categories/<%= now.name %>/" 
-                            class="categories-tab-link <% if (now.active) { %> active <% } %>">
-                            <%= now.name %>
+                        <a href="/categories/<%= name %>/" 
+                            class="categories-tab-link <% if (category.active === name) { %> active <% } %>">
+                            <%= name %>
                         </a>
                     </li>
                 <% } %>

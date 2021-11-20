@@ -9,9 +9,10 @@
         <div class="guiding-area">
             <ul class="tags-tab-links">
                 <%= for (let i = 0; i < tagGuiding.items.length; i++) {
-                    let now = tagGuiding.items[i];
+                    let name = tagGuiding.items[i];
+                    let link = "/tags/" + name;
                 %>
-                <li><a href="<%= now.link %>" class="tags-tab-link"><%= now.name %></a></li>
+                <li><a href="<%= link %>" class="tags-tab-link"><%= name %></a></li>
                 <% } %>
             </ul>
         </div>
