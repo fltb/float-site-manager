@@ -326,10 +326,10 @@ const generator = {
 
         for (let i = 0; i < allItems.length; i++) {
             const item = allItems[i];
-            if (categories[item.category] === undefined) {
-                categories[item.category] = [];
-            }
             if (item.category !== undefined) {
+                if (categories[item.category] === undefined) {
+                    categories[item.category] = [];
+                }
                 categories[item.category].push(item);
             }
             categories.All.push(item);
