@@ -32,20 +32,26 @@ const getConfig = function () {
 
 const generator = {
 
-    deleteFolderRecursive: function (directoryPath) {
+    deleteFolderOrFileRecursive: function (directoryPath) {
         const that = this;
         if (fs.existsSync(directoryPath)) {
-            fs.readdirSync(directoryPath).forEach((file, index) => {
-                const curPath = path.join(directoryPath, file);
-                if (fs.lstatSync(curPath).isDirectory()) {
-                    // recurse
-                    that.deleteFolderRecursive(curPath);
-                } else {
-                    // delete file
-                    fs.unlinkSync(curPath);
+            try{
+                fs.readdirSync(directoryPath).forEach((file, index) => {
+                    const curPath = path.join(directoryPath, file);
+                    if (fs.lstatSync(curPath).isDirectory()) {
+                        // recurse
+                        that.deleteFolderOrFileRecursive(curPath);
+                    } else {
+                        // delete file
+                        fs.unlinkSync(curPath);
+                    }
+                });
+                fs.rmdirSync(directoryPath);
+            } catch (err) {
+                if (err.code === "ENOTDIR") {
+                    fs.unlinkSync(directoryPath);
                 }
-            });
-            fs.rmdirSync(directoryPath);
+            }
         }
     },
 
@@ -169,7 +175,7 @@ const generator = {
                 for (let i = 0; i < allFile.length; i++) {
                     const dir = allFile[i];
                     let chandedFile = {
-                        name: dir,
+                        name: dir.name,
                         files: []
                     };
                     for (let j = 0; j < dir.files.length; j++) {
@@ -231,7 +237,7 @@ const generator = {
         }
     },
 
-    recordFile: function (changedFilePaths) {
+    recordFileandClean: function (changedFilePaths) {
         /*
             arg: filePaths: [string]
 
@@ -242,19 +248,33 @@ const generator = {
             let fileRec;
             try {
                 fileRec = JSON.parse(fs.readFileSync('source/fileRecord.json', "utf-8"));
-            } catch {
+            } catch (err) {
                 if (err.code === 'ENOENT' || err.code === "ENOTDIR") {
                     fileRec = {};
                 } else {
                     reject(err);
                 }
             }
+
+            // find all deleted file then clean them
+            const keys = Object.getOwnPropertyNames(fileRec);
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
+                console.log(key);
+                if (!fs.existsSync(key)) {
+                    console.log("Deleted "+key);
+                    delete fileRec[key];
+                    that.deleteFolderOrFileRecursive(path.join("public", path.relative("source", key)));
+                }
+            }
+
             for (let i = 0; i < changedFilePaths.length; i++) {
                 const filePath = changedFilePaths[i];
                 const checksum = await that.getHash(filePath);
                 fileRec[filePath] = checksum;
             }
-            fs.writeFile("source/fileRecord.json", JSON.stringify(rec), err => {
+
+            fs.writeFile("source/fileRecord.json", JSON.stringify(fileRec), err => {
                 if (err) {
                     reject(err);
                 } else {
@@ -317,12 +337,23 @@ const generator = {
                 ...
             ],
         */
+        function compare(Item1, Item2) {
+            const date1 = new Date(Item1.date);
+            const date2 = new Date(Item2.date);
+            if (date1 < date2) {
+                return -1;
+            } else if (date1 === date2) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
 
         let categories = {
             All: []
         };
 
-        this.deleteFolderRecursive("public/categories");
+        this.deleteFolderOrFileRecursive("public/categories");
 
         for (let i = 0; i < allItems.length; i++) {
             const item = allItems[i];
@@ -340,7 +371,8 @@ const generator = {
         // render every single category, including all
         for (let i = 0; i < categoriesKeys.length; i++) {
             const key = categoriesKeys[i];
-            const items = categories[key];
+            let items = categories[key];
+            items.sort(compare);
             const html = ejs.render(ejsTemptele, {
                 config: getConfig(),
                 page: {
@@ -372,7 +404,10 @@ const generator = {
             page: {
                 title: 'Tag' + tagName
             },
-            items: items
+            tag: {
+                name: tagName,
+                items: items
+            }
         }, {
             filename: "layout/ejs/tags/tags.ejs"
         });
@@ -382,34 +417,10 @@ const generator = {
         fs.writeFileSync(path.join("public/tags", tagName, "index.html"), html);
     },
 
-    renderAllTagPage: function (allInfos) {
-        let infosGuideByTag = {};
-        for (let i = 0; i < allInfos.length; i++) {
-            const info = allInfos[i];
-            for (let j = 0; j < info.tags.length; j++) {
-                const tag = info.tags[j];
-                if (infosGuideByTag[tag] === undefined) {
-                    infosGuideByTag[tag] = [];
-                }
-                infosGuideByTag[tag].push(info);
-            }
-        }
-        this.deleteFolderRecursive("public/tags");
-        const keys = Object.getOwnPropertyNames(infosGuideByTag);
-        for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
-            for (let j = 0; i < infosGuideByTag[key].length; j++) {
-                const info = infosGuideByTag[key][j];
-                this.renderTagPage(key, info);
-            }
-        }
-    },
-
     renderTagGuiding: function (allInfos) {
         /*
             arg: <as same as in renderCategories()>
         */
-        this.deleteFolderRecursive("public/tags");
         let allTags = [];
         for (let i = 0; i < allInfos.length; i++) {
             const info = allInfos[i];
@@ -436,6 +447,27 @@ const generator = {
         fs.writeFileSync("public/tags/index.html", html);
     },
 
+    renderAllTagPage: function (allInfos) {
+        let infosGuideByTag = {};
+        for (let i = 0; i < allInfos.length; i++) {
+            const info = allInfos[i];
+            for (let j = 0; j < info.tags.length; j++) {
+                const tag = info.tags[j];
+                if (infosGuideByTag[tag] === undefined) {
+                    infosGuideByTag[tag] = [];
+                }
+                infosGuideByTag[tag].push(info);
+            }
+        }
+        this.deleteFolderOrFileRecursive("public/tags");
+        const keys = Object.getOwnPropertyNames(infosGuideByTag);
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            this.renderTagPage(key, infosGuideByTag[key]);
+        }
+        this.renderTagGuiding(allInfos);
+    },
+
     renderAll: function () {
         /*
             Read all changed directory in ../source,
@@ -447,11 +479,14 @@ const generator = {
         const that = this;
         return new Promise(async function (resolve) {
             const allChangedFileList = await that.getChanged();
+            console.log(allChangedFileList);
+
             // if a page or site's info have been changed, we need to update categroies and tags
             let infoChanged = false;
             for (let i = 0; i < allChangedFileList.length; i++) {
                 const changed = allChangedFileList[i];
-                const infos = JSON.parse(fs.readFileSync(path.join("source", changed.name), "utf-8"));
+                console.log(i + " " + changed.name);
+                const infos = JSON.parse(fs.readFileSync(path.join("source", changed.name, "infos.json"), "utf-8"));
 
                 for (let j = 0; j < changed.files.length; j++) {
                     const filePath = changed.files[j];
@@ -472,7 +507,6 @@ const generator = {
             if (infoChanged) {
                 const allInfos = that.getAllInfos();
                 that.renderCategories(allInfos);
-                that.renderTagGuiding(allInfos);
                 that.renderAllTagPage(allInfos);
             }
 
@@ -485,17 +519,11 @@ const generator = {
                     allChangedList.push(filePath);
                 }
             }
-            that.recordFile(allChangedList);
+            that.recordFileandClean(allChangedList);
 
             resolve();
         });
     }
 }
-
-const newLocal = async function () {
-    const gg = Object.create(generator);
-    console.log(gg.renderCategories(gg.getAllInfos()));
-};
-newLocal();
 
 module.exports = generator;
