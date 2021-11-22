@@ -1,33 +1,13 @@
-"use scrict";
+"use strict";
 
 const fs = require("fs");
 const ejs = require("ejs");
 const path = require("path");
 const crypto = require("crypto");
+const config = require("./config");
 
 const getConfig = function () {
-    return {
-        "siteName": "YJZX",
-        "siteURL": "https://example.com",
-        "year": 2021,
-        "owner": "Float",
-        "licenseLink": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "lisenseName": "CC-BY-SA 4.0",
-        "navs": [{
-            "name": "HOME",
-            "link": "/"
-        }, {
-            "name": "WORK",
-            "link": "/work"
-        }, {
-            "name": "BLOG",
-            "link": "https://yjzxlclub.github.io/"
-        }, {
-            "name": "ABOUT",
-            "link": "/about"
-        }
-        ]
-    };
+    return config.getConfig();
 }
 
 const generator = {
@@ -43,13 +23,17 @@ const generator = {
                         that.deleteFolderOrFileRecursive(curPath);
                     } else {
                         // delete file
+                        console.log("Deleted " + curPath);
                         fs.unlinkSync(curPath);
                     }
                 });
+                console.log("Deleted " + directoryPath);
                 fs.rmdirSync(directoryPath);
             } catch (err) {
                 if (err.code === "ENOTDIR") {
                     fs.unlinkSync(directoryPath);
+                } else {
+                    throw err;
                 }
             }
         }
@@ -72,6 +56,37 @@ const generator = {
         });
     },
 
+    getSingleDirectoty: function (fileRootPath) {
+        let allFile = [];
+        function readDirSync(filePath) {
+            try {
+                const dirs = fs.readdirSync(filePath);
+                for (let i = 0; i < dirs.length; i++) {
+                    const fileName = dirs[i];
+                    const filePathChild = path.join(filePath, fileName);
+                    try {
+                        const stat = fs.statSync(filePathChild);
+                        if (stat.isDirectory()) {
+                            readDirSync(filePathChild);
+                        } else if (stat.isFile()) {
+                            allFile.push(filePathChild);
+                        }
+                    } catch (err) {
+                        throw err;
+                    }
+                }
+            } catch (err) {
+                if (err.code === 'ENOENT' || err.code === "ENOTDIR") {
+                    return;
+                } else {
+                    throw err;
+                }
+            }
+        }
+        readDirSync(fileRootPath);
+        return allFile;
+    },
+
     getAllFile: function () {
         /*
             sync, returns an object included all file's name
@@ -86,36 +101,6 @@ const generator = {
                 ...
             ]
         */
-        function getSingleDirectoty(fileRootPath) {
-            let allFile = [];
-            function readDirSync(filePath) {
-                try {
-                    const dirs = fs.readdirSync(filePath);
-                    for (let i = 0; i < dirs.length; i++) {
-                        const fileName = dirs[i];
-                        const filePathChild = path.join(filePath, fileName);
-                        try {
-                            const stat = fs.statSync(filePathChild);
-                            if (stat.isDirectory()) {
-                                readDirSync(filePathChild);
-                            } else if (stat.isFile()) {
-                                allFile.push(filePathChild);
-                            }
-                        } catch (err) {
-                            throw err;
-                        }
-                    }
-                } catch (err) {
-                    if (err.code === 'ENOENT' || err.code === "ENOTDIR") {
-                        return;
-                    } else {
-                        throw err;
-                    }
-                }
-            }
-            readDirSync(fileRootPath);
-            return allFile;
-        }
 
         let allFile = [];
         try {
@@ -127,7 +112,7 @@ const generator = {
                     fs.accessSync(path.join(dirPath, "infos.json"));
                     const stat = fs.statSync(dirPath);
                     if (stat.isDirectory()) {
-                        const tmp = getSingleDirectoty(dirPath);
+                        const tmp = this.getSingleDirectoty(dirPath);
                         allFile.push({
                             name: dirName,
                             files: tmp
@@ -260,9 +245,7 @@ const generator = {
             const keys = Object.getOwnPropertyNames(fileRec);
             for (let i = 0; i < keys.length; i++) {
                 const key = keys[i];
-                console.log(key);
                 if (!fs.existsSync(key)) {
-                    console.log("Deleted "+key);
                     delete fileRec[key];
                     that.deleteFolderOrFileRecursive(path.join("public", path.relative("source", key)));
                 }
@@ -292,7 +275,6 @@ const generator = {
         const ejsTemptele = fs.readFileSync("layout/ejs/page/page.ejs", "utf-8");
 
         const config = getConfig();
-        console.log(ejsTemptele);
         const html = ejs.render(ejsTemptele, {
             page: {
                 content: data,
@@ -468,6 +450,18 @@ const generator = {
         this.renderTagGuiding(allInfos);
     },
 
+    renderSrc: function() {
+        let allFile = this.getSingleDirectoty("layout/src");
+        
+        for (let i = 0; i < allFile.length; i++) {
+            const file = allFile[i];
+            if (file !== "layout/src/index.html") {
+                fs.mkdirSync(path.join("public", path.relative("layout", path.dirname(file))), { recursive: true });
+                fs.copyFileSync(file, path.join("public", path.relative("layout", file)));
+            }
+        }
+    },
+
     renderAll: function () {
         /*
             Read all changed directory in ../source,
@@ -479,13 +473,20 @@ const generator = {
         const that = this;
         return new Promise(async function (resolve) {
             const allChangedFileList = await that.getChanged();
-            console.log(allChangedFileList);
+
+            // copy static files if not exsist
+            if (!fs.existsSync("public/src")) {
+                that.renderSrc();
+            }
+
+            if (!fs.existsSync("public/index.html")) {
+                fs.copyFileSync("layout/src/index.html", "public/index.html");
+            }
 
             // if a page or site's info have been changed, we need to update categroies and tags
             let infoChanged = false;
             for (let i = 0; i < allChangedFileList.length; i++) {
                 const changed = allChangedFileList[i];
-                console.log(i + " " + changed.name);
                 const infos = JSON.parse(fs.readFileSync(path.join("source", changed.name, "infos.json"), "utf-8"));
 
                 for (let j = 0; j < changed.files.length; j++) {
@@ -525,5 +526,12 @@ const generator = {
         });
     }
 }
+
+async function aaa() {
+    const gg = Object.create(generator);
+    gg.renderAll();
+}
+
+aaa();
 
 module.exports = generator;
