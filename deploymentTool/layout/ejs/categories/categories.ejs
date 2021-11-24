@@ -1,6 +1,8 @@
 <%- include('../common/head.ejs', {page: page}); %>
 
 <body>
+    <main class="main">
+
     <%- include('../common/nav.ejs', {config: config}); %>
 
     <div class="main-container">
@@ -19,29 +21,28 @@
             </ul>
         </div>
         <div class="content-area">
-            <ul class="categories-tab-contents">
-                <li class="categories-tab-content">
-                    <ul class="displayed-contents">
-                        <% for (let i = 0; i < category.items.length; i++) {
-                            let now = category.items[i];
-                        %>
-                        <li class="displayed-content">
-                            <a href="<%= now.link %>">
-                                <h2 class="content-title"><%= now.title %></h2>
-                                <p class="content-description"><%= now.description %></p>
-                                <div class="content-infos">
-                                    <span class="content-categorie"><%= now.category %></span>
-                                    <span class="content-auther"><%= now.auther %></span>
-                                    <span class="content-date push"><%= now.date %></span>
-                                </div>
-                            </a>
-                        </li>
-                        <% } %>
-                    </ul>
-                </li>
+            <ul class="displayed-contents">
+                <% for (let i = 0; i < category.items.length; i++) {
+                        let now = category.items[i];
+                    %>
+                    <li class="displayed-content">
+                        <a href="<%= now.link %>">
+                            <h2 class="content-title"><%= now.title %></h2>
+                            <p class="content-description"><%= now.description %></p>
+                            <div class="content-infos">
+                                <span class="content-categorie"><%= now.category %></span>
+                                <span class="content-auther"><%= now.auther %></span>
+                                <span class="content-date push"><%= now.date %></span>
+                            </div>
+                        </a>
+                    </li>
+                <% } %>
             </ul>
         </div>
     </div>
 
-    <%- include('../common/head.ejs', {config: config}); %>
+    <%- include('../common/footer.ejs', {config: config}); %>
+    
+    </main>
+
 </body>

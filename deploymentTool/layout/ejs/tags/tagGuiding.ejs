@@ -1,6 +1,8 @@
 <%- include('../common/head.ejs', {page: page}); %>
 
 <body>
+    <main class="main">
+
     <%- include('../common/nav.ejs', {config: config}); %>
 
     <div class="main-container">
@@ -18,5 +20,7 @@
         </div>
     </div>
 
-    <%- include('../common/head.ejs', {config: config}); %>
+    <%- include('../common/footer.ejs', {config: config}); %>
+
+    </main>
 </body>
