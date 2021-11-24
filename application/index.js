@@ -1,6 +1,5 @@
 "use strict";
 
-const config = require("./config");
 const generator = require("./generator");
 const sourseManager = require("./sourceManager");
 const server = require("./server");
