@@ -22,6 +22,8 @@ function main() {
         case "new":
             sourseManager.newer(args[1], args[2]);
             break;
+        default:
+            console.log("Unknown arguments.\nUsage: [generate] [server] [clean] [new <type> <name>]\nSee ./doc to get more infomations.");
     }
 }
 
