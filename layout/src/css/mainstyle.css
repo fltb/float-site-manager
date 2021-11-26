@@ -51,6 +51,8 @@
     overflow: auto;
     border-radius: 0.8em;
     padding: 1em;
+    padding-left: 2.3em;
+    padding-right: 2.3em;
 }
 
 .footer {
