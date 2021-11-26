@@ -4,18 +4,22 @@
     "year": 2021,
     "owner": "Float",
     "licenseLink": "https://creativecommons.org/licenses/by-sa/4.0/",
-    "lisenseName": "CC-BY-SA 4.0",
+    "licenseName": "CC-BY-SA 4.0",
     "navs": [ {
-            "name": "HOME",
+            "name": "主页",
             "link": "/"
         }, {
-            "name": "WORK",
-            "link": "/work"
-        }, {
-            "name": "BLOG",
+            "name": "分类",
+            "link": "/categories"
+        }, 
+        {
+            "name": "标签",
+            "link": "/tags"
+        },{
+            "name": "博客",
             "link": "https://yjzxlclub.github.io/"
         }, {
-            "name": "ABOUT",
+            "name": "关于",
             "link": "/about"
         }
     ]
