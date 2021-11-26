@@ -4,33 +4,9 @@ const fs = require("fs");
 const path = require("path");
 const ejs = require("ejs");
 const config = require("./config");
+const extras = require("./extras");
 
 const sourceManager = {
-    deleteFolderOrFileRecursive: function (directoryPath) {
-        const that = this;
-        if (fs.existsSync(directoryPath)) {
-            try{
-                fs.readdirSync(directoryPath).forEach((file, index) => {
-                    const curPath = path.join(directoryPath, file);
-                    if (fs.lstatSync(curPath).isDirectory()) {
-                        // recurse
-                        that.deleteFolderOrFileRecursive(curPath);
-                    } else {
-                        // delete file
-                        console.log("Deleted " + curPath);
-                        fs.unlinkSync(curPath);
-                    }
-                });
-                fs.rmdirSync(directoryPath);
-            } catch (err) {
-                if (err.code === "ENOTDIR") {
-                    fs.unlinkSync(directoryPath);
-                } else {
-                    throw err;
-                }
-            }
-        }
-    },
 
     getInfosTemplete: function(type, name) {
         // Waiting
@@ -47,8 +23,8 @@ const sourceManager = {
 
     clean: function() {
         // just delete rendered files
-        this.deleteFolderOrFileRecursive("public");
-        this.deleteFolderOrFileRecursive("source/fileRecord.json");
+        extras.deleteFolderOrFileRecursive("public");
+        fs.unlinkSync("source/fileRecord.json");
     },
 
     newer: function(type, name) {
@@ -79,6 +55,8 @@ const sourceManager = {
             });
         } else if (type === "page") {
             index = "<!-- A sigle page -->";
+        } else {
+            throw new Error("Unknown type: " + type);
         }
 
         if (!fs.existsSync(path.join("source", name))) {
