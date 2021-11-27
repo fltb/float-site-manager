@@ -24,7 +24,7 @@
         }
     ],
     "deploygit": {
-        "repo": "https://example.com",
+        "repo": "https://github.com/yjzx-site/yjzx-site.github.io.git",
         "branch": "master"
     }
 }
