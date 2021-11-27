@@ -1,6 +1,6 @@
 {
-    "siteName": "YJZX",
-    "siteURL": "https://example.com",
+    "siteName": "Float's Site",
+    "siteURL": "https://yjzxlclub.github.io",
     "year": 2021,
     "owner": "Float",
     "licenseLink": "https://creativecommons.org/licenses/by-sa/4.0/",
@@ -22,5 +22,9 @@
             "name": "关于",
             "link": "/about"
         }
-    ]
+    ],
+    "deploygit": {
+        "repo": "https://example.com",
+        "branch": "master"
+    }
 }
