@@ -1,0 +1,130 @@
+/* Layout begin::*/
+.site-nav {
+    /*flex-grow: 1;*/
+    display: flex;
+    margin-left: auto;
+    margin-right: auto;
+    width: 60em;
+    padding: 0.5em 2em 0.5em 2em;
+    border-radius: 0.8em;
+
+    top: 0;
+    position: fixed;
+}
+
+.main {
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    width: 64em;
+}
+
+.main-menu {
+    padding: 0;
+    display: flex;
+    list-style-type: none;
+    margin: 0;
+    margin-left: auto;
+}
+
+.site-meta a {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.main-menu li {
+    /*margin: 0em 0em 1em 1em;*/
+    border-radius: 10px;
+    padding: 1px 4px;
+}
+
+.main-menu a {
+    border-radius: 2px;
+    padding: 0.6rem;
+    text-decoration:none;
+}
+
+.main-container {
+    margin-top: 4.5em;
+    min-height: 48em;
+    min-height: calc(100vh - 10.5em);
+    overflow: auto;
+    border-radius: 0.8em;
+    padding: 1em;
+    padding-left: 2.3em;
+    padding-right: 2.3em;
+}
+
+.footer {
+    margin-top: 2em;
+    text-align: center;
+    flex: 1;
+}
+
+@media (max-width: 64em) {
+    .site-nav { 
+        margin: 0;
+        width: 90%;
+        width: calc(100% - 5em);
+    }
+    .main {
+        width: 100%;
+    }
+}
+@media (max-width: 500px) {
+    .site-title {
+        display: none;
+    }
+    .main-menu {
+        margin-left: 0;
+    }
+    .site-nav {
+        padding: 0.5em 0 0.5em 0;
+        margin: 0;
+        border-radius: 0.8em;
+        position: static;
+        width: 100%;
+    }
+    .main-container {
+        margin-top: 0.5em;
+    }    
+}
+/* Layout end::*/
+
+/* colors begin::*/
+body {
+    background-color: #48e4ef;
+    background: linear-gradient(to top, #48e4ef 0%, rgb(119, 182, 218) 100%);
+}
+
+.site-nav {
+    background-color: rgba(245, 245, 245, 0.8);
+    box-shadow: 0 0px 0.6px rgba(0, 0, 0, 0.028), 0 0px 1.3px rgba(0, 0, 0, 0.04), 0 0px 2.5px rgba(0, 0, 0, 0.05), 0 0px 4.5px rgba(0, 0, 0, 0.06), 0 0px 8.4px rgba(0, 0, 0, 0.072), 0 0px 20px rgba(0, 0, 0, 0.1);
+}
+.site-meta a {
+    color: rgb(0, 0, 0);
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, .1);
+}
+
+.main-menu li {
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, .1);
+}
+
+.main-menu a {
+    color: #0288d1;
+    transition: background-color 0.8s;
+}
+
+.main-menu a:hover {
+    background-color: #b3e5fc;
+}
+
+.main-container {
+    background-color: rgba(245, 245, 245, 0.900);
+    box-shadow: 0 0px 0.6px rgba(0, 0, 0, 0.028), 0 0px 1.3px rgba(0, 0, 0, 0.04), 0 0px 2.5px rgba(0, 0, 0, 0.05), 0 0px 4.5px rgba(0, 0, 0, 0.06), 0 0px 8.4px rgba(0, 0, 0, 0.072), 0 0px 20px rgba(0, 0, 0, 0.1);
+}
+
+.footer {
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, .1);
+}
+/* colors end::*/
