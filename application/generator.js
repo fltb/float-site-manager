@@ -223,7 +223,7 @@ const generator = {
                 if (!fs.existsSync(key)) {
                     delete fileRec[key];
                     infoChanged = true;
-                    extras.deleteFolderOrFileRecursive(path.join("public", path.relative("source", key)));
+                    extras.rm(path.join("public", path.relative("source", key)));
                 }
             }
 
@@ -316,7 +316,7 @@ const generator = {
             All: []
         };
 
-        extras.deleteFolderOrFileRecursive("public/categories");
+        extras.rm("public/categories");
 
         for (let i = 0; i < allItems.length; i++) {
             const item = allItems[i];
@@ -447,7 +447,7 @@ const generator = {
                 }
             }
         }
-        extras.deleteFolderOrFileRecursive("public/tags");
+        extras.rm("public/tags");
         const keys = Object.getOwnPropertyNames(infosGuideByTag);
         for (let i = 0; i < keys.length; i++) {
             const key = keys[i];

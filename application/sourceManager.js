@@ -23,8 +23,8 @@ const sourceManager = {
 
     clean: function() {
         // just delete rendered files
-        extras.deleteFolderOrFileRecursive("public");
-        fs.unlinkSync("source/fileRecord.json");
+        extras.rm("public");
+        extras.rm("source/fileRecord.json");
     },
 
     newer: function(type, name) {
@@ -54,7 +54,7 @@ const sourceManager = {
                 filename: "layout/ejs/page/page.ejs"
             });
         } else if (type === "page") {
-            index = "<!-- A sigle page -->";
+            index = "<!-- A sigle page -->\n<h1>" + name + "</h1>\n";
         } else {
             throw new Error("Unknown type: " + type);
         }
