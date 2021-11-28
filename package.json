@@ -1,8 +1,11 @@
 {
     "name": "float-site-manager",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "To manage static sites",
     "main": "bin/float-site-manager.js",
+    "files": [
+        "bin"
+    ],
     "dependencies": {
         "ejs": "^3.1.6"
     },
