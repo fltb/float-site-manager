@@ -4,12 +4,151 @@ const fs = require("fs");
 const ejs = require("ejs");
 const path = require("path");
 const crypto = require("crypto");
-const config = require("./config");
-const extras = require("./extras");
-
-const getConfig = function () {
-    return config.getConfig();
+const child_process = require("child_process");
+const config = {
+    getConfig: function() {
+        if (!this.inited) {
+            this.inited = true;
+            this.conf = JSON.parse(fs.readFileSync("config.json"));
+        } 
+        return this.conf;
+    }
 }
+const extras = {
+
+    rm: function (Path) {
+        function deleteFolderOrFileRecursive(directoryPath) {
+            if (fs.existsSync(directoryPath)) {
+                try {
+                    const stat = fs.statSync(directoryPath);
+                    if (stat.isFile()) {
+                        fs.unlinkSync(directoryPath);
+                    } else {
+                        fs.readdirSync(directoryPath).forEach((file, index) => {
+                            const curPath = path.join(directoryPath, file);
+                            if (fs.lstatSync(curPath).isDirectory()) {
+                                // recurse
+                                deleteFolderOrFileRecursive(curPath);
+                            } else {
+                                // delete file
+                                console.log("Deleted " + curPath);
+                                fs.unlinkSync(curPath);
+                            }
+                        });
+                        console.log("Deleted " + directoryPath);
+                        fs.rmdirSync(directoryPath);
+                    }
+                } catch (err) {
+                    throw err;
+                }
+            }
+        }
+        function deleteEmpty(dirPath) {
+            try {
+                fs.rmdirSync(dirPath);
+            } catch (err) {
+                return;
+            }
+            // delete success, dir is empty
+            deleteEmpty(path.dirname(dirPath));
+        }
+        deleteFolderOrFileRecursive(Path);
+        deleteEmpty(path.dirname(Path));
+    },
+
+    rmQuiet: function (Path) {
+        function deleteFolderOrFileRecursive(directoryPath) {
+            if (fs.existsSync(directoryPath)) {
+                try {
+                    const stat = fs.statSync(directoryPath);
+                    if (stat.isFile()) {
+                        fs.unlinkSync(directoryPath);
+                    } else {
+                        fs.readdirSync(directoryPath).forEach((file, index) => {
+                            const curPath = path.join(directoryPath, file);
+                            if (fs.lstatSync(curPath).isDirectory()) {
+                                // recurse
+                                deleteFolderOrFileRecursive(curPath);
+                            } else {
+                                // delete file
+                                fs.unlinkSync(curPath);
+                            }
+                        });
+                        fs.rmdirSync(directoryPath);
+                    }
+                } catch (err) {
+                    throw err;
+                }
+            }
+        }
+        function deleteEmpty(dirPath) {
+            try {
+                fs.rmdirSync(dirPath);
+            } catch (err) {
+                return;
+            }
+            // delete success, dir is empty
+            deleteEmpty(path.dirname(dirPath));
+        }
+        deleteFolderOrFileRecursive(Path);
+        deleteEmpty(path.dirname(Path));
+    },
+
+
+    copy: function(source_, target_) {
+        function copyFolderRecursiveSync(source, target) {
+
+            if (!fs.existsSync(target)) {
+                fs.mkdirSync(target);
+            }
+            if (fs.lstatSync(source).isDirectory()) {
+                const files = fs.readdirSync(source);
+                files.forEach(function (file) {
+                    const curSource = path.join(source, file);
+                    const targetNext = path.join(target, file);
+                    if (fs.lstatSync(curSource).isDirectory()) {
+                        copyFolderRecursiveSync(curSource, targetNext);
+                    } else {
+                        fs.copyFileSync(curSource, targetNext);
+                    }
+                });
+            }
+        }
+        if (fs.lstatSync(source_).isFile()) {
+            fs.copyFileSync(source_, target_);
+        } else {
+            copyFolderRecursiveSync(source_, target_);
+        }
+        console.log("Copyed " + source_ + " to " + target_ );
+    },
+
+    copyQuiet: function(source_, target_) {
+        function copyFolderRecursiveSync(source, target) {
+
+            if (!fs.existsSync(target)) {
+                fs.mkdirSync(target);
+            }
+            if (fs.lstatSync(source).isDirectory()) {
+                const files = fs.readdirSync(source);
+                files.forEach(function (file) {
+                    const curSource = path.join(source, file);
+                    const targetNext = path.join(target, file);
+                    if (fs.lstatSync(curSource).isDirectory()) {
+                        copyFolderRecursiveSync(curSource, targetNext);
+                    } else {
+                        fs.copyFileSync(curSource, targetNext);
+                    }
+                });
+            }
+        }
+        if (fs.lstatSync(source_).isFile()) {
+            fs.copyFileSync(source_, target_);
+        } else {
+            copyFolderRecursiveSync(source_, target_);
+        }
+    }
+
+};
 
 const generator = {
 
@@ -254,13 +393,12 @@ const generator = {
         const data = fs.readFileSync(pagePath, "utf-8");
         const ejsTemptele = fs.readFileSync("layout/ejs/page/page.ejs", "utf-8");
 
-        const config = getConfig();
         const html = ejs.render(ejsTemptele, {
             page: {
                 content: data,
                 title: pageTitle
             },
-            config: config
+            config: config.getConfig()
         }, {
             filename: "layout/ejs/page/page.ejs"
         });
@@ -338,7 +476,7 @@ const generator = {
             let items = categories[key];
             items.sort(compare);
             const html = ejs.render(ejsTemptele, {
-                config: getConfig(),
+                config: config.getConfig(),
                 page: {
                     title: "Categories " + key
                 },
@@ -380,7 +518,7 @@ const generator = {
         items.sort(compare);
         const ejsTemptele = fs.readFileSync("layout/ejs/tags/tags.ejs", "utf-8");
         const html = ejs.render(ejsTemptele, {
-            config: getConfig(),
+            config: config.getConfig(),
             page: {
                 title: 'Tag' + tagName
             },
@@ -416,7 +554,7 @@ const generator = {
         }
         const ejsTemptele = fs.readFileSync("layout/ejs/tags/tagGuiding.ejs", "utf-8");
         const html = ejs.render(ejsTemptele, {
-            config: getConfig(),
+            config: config.getConfig(),
             page: {
                 title: "Tags"
             },
@@ -460,7 +598,7 @@ const generator = {
         const ejsTemptele = fs.readFileSync("layout/ejs/index/index.ejs", "utf-8");
         const content = fs.readFileSync("layout/src/index.html", "utf-8");
         const html = ejs.render(ejsTemptele, {
-            config: getConfig(),
+            config: config.getConfig(),
             page: {
                 title: config.getConfig()["siteName"]
             },
@@ -559,5 +697,164 @@ const generator = {
         });
     }
 }
+const sourseManager = {
 
-module.exports = generator;
+    getInfosTemplete: function(type, name) {
+        // Waiting
+        return `{
+    "type": "${type}",
+    "title": "${name}",
+    "auther": "",
+    "category": "",
+    "tags": [""],
+    "description": "",
+    "date": "${new Date().toISOString().split("T")[0]}"
+}`;
+    },
+
+    clean: function() {
+        // just delete rendered files
+        extras.rm("public");
+        extras.rm("source/fileRecord.json");
+    },
+
+    newer: function(type, name) {
+        /*
+            type: "page" || "site", name: ""
+        */
+        if (type === undefined) {
+            throw new Error("Type not given.");
+        }
+        if (name === undefined) {
+            throw new Error("Name not given");
+        }
+        const infos = this.getInfosTemplete(type, name);
+        let index = "";
+        if (type === "site") {
+            const ejsTemptele = fs.readFileSync("layout/ejs/page/page.ejs", "utf-8");
+            index = ejs.render(ejsTemptele, {
+                page: {
+                    title: name,
+                    content: `
+    <!-- Here Are Contents -->
+    <h1>${name}</h1>
+                    `
+                },
+                config: config.getConfig(), 
+            }, {
+                filename: "layout/ejs/page/page.ejs"
+            });
+        } else if (type === "page") {
+            index = "<!-- A sigle page -->\n<h1>" + name + "</h1>\n";
+        } else {
+            throw new Error("Unknown type: " + type);
+        }
+
+        if (!fs.existsSync(path.join("source", name))) {
+            fs.mkdirSync(path.join("source", name), { recursive: true });
+            fs.writeFileSync(path.join("source", name, "index.html"), index);
+            fs.writeFileSync(path.join("source", name, "infos.json"), infos);
+        } else {
+            throw new Error("Failed: " + path.join("source", name) + " Already exsist");
+        }
+    }
+};
+
+const express = require("express");
+
+const app = express();
+
+app.use(express.static("public"));
+
+
+const server = {
+    start: function(port) {
+        if (port === undefined || !Number.isInteger(port)) {
+            port = 4000;
+        }
+        console.log("Server started at http://localhost:" + port);
+        console.log("Use Ctrl+C to stop");
+        app.listen(port);
+    }
+}
+
+const deploygit = {
+    deploy: function() {
+        /*
+            copy public/ to the __deploy/
+            cd __deploy
+            git add .
+            git commit -m "Update"
+            git push config.deploygit.repo congig.deploygit.branch -f
+        */
+        const deployDir = "__deploy";
+        // get an empty dir __deploy/
+        if (fs.existsSync(deployDir)) {
+            extras.rmQuiet(deployDir);
+        }
+        fs.mkdirSync(deployDir);
+        
+        // copy
+        if (fs.existsSync("public")) {
+            extras.copyQuiet("public", deployDir);
+        } else {
+            throw new Error("public/ not exsist. Haven't generated?")
+        }
+        
+        child_process.execSync("echo $PWD", {
+            cwd: deployDir,
+            stdio:[0, 1, 2]
+        })
+
+        // git's action
+        child_process.execSync("git init", {
+            cwd: deployDir,
+            stdio:[0, 1, 2]
+        });
+
+        child_process.execSync("git add .", {
+            cwd: deployDir,
+            stdio:[0, 1, 2]
+        });
+
+        child_process.execSync("git commit -m Update", {
+            cwd: deployDir,
+            stdio:[0, 1, 2]
+        });
+
+        child_process.execSync(`git push ${config.getConfig().deploygit.repo} ${config.getConfig().deploygit.branch} -f`, {
+            cwd: deployDir,
+            stdio:[0, 1, 2]
+        });
+    }
+};
+
+
+function main() {
+    const args = process.argv.slice(2);
+    switch (args[0]) {
+        case "generate":
+        case "g":
+            generator.renderAll();
+            break;
+        case "server":
+        case "s":
+            server.start(args[1]);
+            break;
+        case "deploy":
+        case "d":
+            deploygit.deploy();
+            break;
+        case "clean":
+            sourseManager.clean();
+            break;
+        case "new":
+            sourseManager.newer(args[1], args[2]);
+            break;
+        
+        default:
+            console.log("Unknown arguments.\nUsage: [generate] [server] [clean] [new <type> <name>]\nSee ./doc to get more infomations.");
+    }
+}
+
+main();
