@@ -1,4 +1,4 @@
-node_modules/
-public/
-fileRecord.json
-__deploy/
+node_modules
+public
+source/fileRecord.json
+__deploy

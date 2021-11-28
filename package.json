@@ -1,0 +1,21 @@
+{
+    "name": "float-site-manager",
+    "version": "1.0.0",
+    "description": "To manage static sites",
+    "main": "bin/index.js",
+    "license": "GPL-3.0",
+    "files": [
+        "bin",
+        "LISENSE"
+    ],
+    "homepage": "https://github.com/floatingblocks/float-site-manager",
+    "bin": {
+        "float-site-manager": "bin/index.js"
+    },
+    "dependencies": {
+        "ejs": "^3.1.6"
+    },
+    "bugs": {
+        "url": "https://github.com/floatingblocks/float-site-manager/issues"
+    }
+}
