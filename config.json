@@ -11,13 +11,9 @@
         }, {
             "name": "分类",
             "link": "/categories"
-        }, 
-        {
+        }, {
             "name": "标签",
             "link": "/tags"
-        },{
-            "name": "博客",
-            "link": "https://yjzxlclub.github.io/"
         }, {
             "name": "关于",
             "link": "/about"
