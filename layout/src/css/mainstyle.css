@@ -1,4 +1,6 @@
 /* Layout begin::*/
+
+
 .site-nav {
     /*flex-grow: 1;*/
     display: flex;
@@ -95,6 +97,14 @@
 body {
     background-color: #48e4ef;
     background: linear-gradient(to top, #48e4ef 0%, rgb(119, 182, 218) 100%);
+}
+
+body {
+    background-image: url(/src/img/background.jpg);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: 50% 50%;
+    background-size: cover;
 }
 
 .site-nav {
